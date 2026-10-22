@@ -15,7 +15,7 @@ Klären, wie die Wear-OS-Uhr die Herzfrequenz des Polar H10 per BLE empfängt.
 - Navigation 3
 - Koin für Dependency Injection
 - Room für lokale Speicherung (auch auf der Uhr)
-- minSdk 30, targetSdk aktuelles Level
+- minSdk 33, targetSdk aktuelles Level
 
 ## Regeln
 - Entscheidungen werden als ADR in docs/adr/ dokumentiert, bevor implementiert wird.

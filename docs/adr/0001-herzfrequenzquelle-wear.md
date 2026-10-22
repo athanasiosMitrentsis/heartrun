@@ -1,6 +1,6 @@
 # ADR 0001: Herzfrequenzquelle auf der Uhr
 
-- Status: **Vorgeschlagen** (wird vom Menschen angenommen oder abgelehnt)
+- Status: **Angenommen** (2026-10-22)
 - Datum: 2026-10-09
 - Grundlage: docs/spec.md, docs/research/polar-ble.md
 
@@ -69,3 +69,11 @@ Erfolgskriterien:
 5. Beobachtung: Gab es einen Kopplungsdialog (Bonding) oder nicht?
 
 Fällt Kriterium 1 oder 2 durch, wird dieses ADR neu bewertet.
+
+## Nachtrag 2026-10-22: minSdk 33
+
+Das Projekt nutzt minSdk 33 (siehe `wear/build.gradle.kts`, `mobile/build.gradle.kts`), nicht 30 wie in R5 angenommen. Daraus folgt:
+
+- **R5:** Das minSdk-Argument gegen das Polar BLE SDK fällt weg. Die Entscheidung für Option (b) gilt trotzdem weiter: Das SDK hat keine dokumentierte Wear-OS-Unterstützung, und das MVP braucht nur das Standard-Heart-Rate-Profil.
+- **Manifest wear:** Für den BLE-Scan wird `ACCESS_FINE_LOCATION` nicht gebraucht. Die gilt laut bt-permissions nur bis API 30. Das gilt auch für die Legacy-Berechtigungen `BLUETOOTH`/`BLUETOOTH_ADMIN`. `ACCESS_FINE_LOCATION` bleibt aber nötig, weil Health Services mit `isGpsEnabled = true` läuft (R4).
+- Die API-33-Varianten `onCharacteristicChanged(gatt, characteristic, value)` und `writeDescriptor(descriptor, value)` können direkt genutzt werden, ohne Versionsweiche.
