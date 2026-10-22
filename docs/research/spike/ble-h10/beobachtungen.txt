@@ -1,0 +1,20 @@
+## test 1
+- beobachtungen so wie erwartet- hf wurde plausibel angezeigt und kann in den logs geprüft werden
+## test 2
+- nach der trennung wurde schneller als 45s die verbindung als getrennt angezeigt
+- trennung des h10 vom gurt war ziemlich genau um 11:11:11
+- danach nur per button "suchen" wieder verbunden
+- und es wurde 0bpm angezeigt - das liegt wahrscheinlich am gurt selbst, denn auch andere apps zeigten 0 bpm an
+# test 3
+- keine logs
+- beide apps gemeinsam verbunden und gleiche bpm angezeigt. als auf dem smartphione die bt verbindung getrennt wurde wurde auf der watch weiterhin alles angezeigt
+- wie wichtig ist dieser test? habe den umfang erst im nachhinein festgestellt-
+
+# test 4
+- nach ungefähr 2,5 minuten kamen keine logs mehr an.
+- danach erst wieder nachdem in der app auf der smartwatch auf suchen getippt wurde
+
+#test 5
+- ja kopplungsdialog wurde angezeigt,
+- polar h10: ant+ 45802 Firmware version: 4.2.0
+- watch: wear os 7.0
