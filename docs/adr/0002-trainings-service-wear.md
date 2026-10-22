@@ -6,122 +6,117 @@
 
 ## Kontext
 
-ADR 0001 legt fest: Die HF kommt über eine eigene GATT-Verbindung vom H10, Distanz, Pace und GPS kommen aus `ExerciseClient`, und beides läuft in einem Foreground Service. Offen ist, wie dieser Service aufgebaut ist, wann er läuft, wie die BLE-Verbindung stabil bleibt und wieder aufgebaut wird und wie die Oberfläche an die Daten kommt. Außerdem verlangt ADR 0001, dass Kriterium 2 (automatische Wiederverbindung) in der ersten Implementierung mit Foreground Service erneut geprüft wird.
+ADR 0001 legt fest: Die HF kommt über eine eigene GATT-Verbindung vom H10, Distanz, Pace und GPS kommen aus `ExerciseClient`, und beides läuft in einem Foreground Service. Offen ist, wie dieser Service und der Trainingsablauf aussehen, wie die BLE-Verbindung stabil bleibt und wie die Oberfläche an die Daten kommt. Außerdem verlangt ADR 0001, dass Kriterium 2 (automatische Wiederverbindung) in der ersten Implementierung mit Foreground Service erneut geprüft wird.
+
+**Leitlinie (Vorgabe des Menschen, 2026-10-22):** Wir erfinden nichts neu. Wir bauen nach, was sich bewährt hat, mit einem Unterschied: Die Uhr verbindet sich direkt mit dem H10 und zeigt dessen Werte live an.
+- **Bedienung und Verhalten:** wie die Google-Trainings-App (Fitbit Exercise / Google Health) auf der Pixel Watch.
+- **Technischer Aufbau:** wie Googles offizielle Beispiel-App `ExerciseSampleCompose`.
+- **Abweichungen nur dort, wo der H10 (BLE) oder CLAUDE.md (Koin, Navigation 3, Room) sie verlangt.** Jede Abweichung wird unten benannt.
 
 Ergebnisse aus wear-training-service.md (W) und den Spike-Ergebnissen in polar-ble.md (S), auf die sich diese Entscheidung stützt:
-- **W1** (belegt): Foreground-Service-Typen lassen sich mit `|` kombinieren. Für jeden Typ gelten seine Voraussetzungen. Ein Start mit While-in-use-Berechtigungen (`location`, `health` mit Körpersensoren) muss erfolgen, während eine Activity sichtbar ist.
-- **W2** (belegt): `ExerciseClient` verlangt einen Foreground Service für das ganze Training, auch schon für `prepareExerciseAsync()`. Systemweit läuft höchstens eine Exercise. Die Quelle der Wahrheit für den Zustand ist `ExerciseUpdate`.
-- **W3** (belegt): `PACE` in ms/km (0 bei Stillstand), `DISTANCE_TOTAL` in m, `PACE_STATS` als Statistik seit Start. Mit `isGpsEnabled` wird die Distanz aus GPS geschätzt statt aus Schritten.
-- **W4** (belegt): Ongoing Activity (oder ab Wear OS 7 Live Update) ist für Trainings Pflicht (WO-V4) und hält die App im Ambient-Modus sichtbar. Im Ambient-Modus sollen schnell wechselnde Werte als `--` erscheinen.
-- **W5** (belegt): `autoConnect = true` verbindet nach einer Trennung durch das Peripheriegerät automatisch neu, solange der Prozess lebt. Ab API 37 ist `connectGatt(Context, …)` deprecated. Ersatz ist `connectGatt(BluetoothGattConnectionSettings, Executor, BluetoothGattCallback)`.
-- **W6** (keine verlässliche Quelle): Ob CompanionDeviceManager auf Wear OS verfügbar ist.
+- **W1** (belegt): Foreground-Service-Typen lassen sich mit `|` kombinieren. Für jeden Typ gelten seine Voraussetzungen. Ein Start mit While-in-use-Berechtigungen muss erfolgen, während eine Activity sichtbar ist.
+- **W2** (belegt): `ExerciseClient` braucht einen Foreground Service für das Training. Systemweit läuft höchstens eine Exercise. Die Quelle der Wahrheit für den Zustand ist `ExerciseUpdate`.
+- **W3** (belegt): `PACE` in ms/km, `DISTANCE_TOTAL` in m, `PACE_STATS` als Statistik seit Start. Mit `isGpsEnabled` wird die Distanz aus GPS geschätzt.
+- **W4** (belegt): Eine Ongoing Activity ist für Trainings Pflicht (WO-V4) und hält die App im Ambient-Modus sichtbar.
+- **W5** (belegt): `autoConnect = true` verbindet nach einer Trennung automatisch neu, solange der Prozess lebt. Ab API 37 gibt es dafür `connectGatt(BluetoothGattConnectionSettings, …)`.
+- **W6a** (belegt): Die Google-Trainings-App hat Start, Pause und Ende mit nach rechts Wischen auf die Steuerung, kann auf Wunsch ohne GPS-Fix starten, zeigt danach eine Zusammenfassung und bietet eine Einstellung „Always-on screen“ für das Training. Einen Brustgurt **empfängt** die aktuelle Pixel Watch nicht. Die alte Google-Fit-App (nur bis Wear OS 3) ließ den Gurt einmal in den Einstellungen wählen und zeigte „Bluetooth“ neben dem BPM-Wert.
+- **W6b** (belegt): `ExerciseSampleCompose` nutzt:
+  - einen gebundenen und gestarteten `LifecycleService` mit `START_STICKY`, dessen Zustand als `Flow` über den Binder kommt
+  - `startForeground` erst bei `startExercise()`
+  - eine Ongoing Activity mit Stoppuhr
+  - die Bildschirme Nicht verfügbar → Vorbereitung (GPS-Status, Start) → Training (Pager: Steuerung | Messwerte) → Zusammenfassung
+  - eine Warnung, wenn eine andere App trainiert
+  - Messwerte, die im Ambient-Modus in Graustufen sichtbar bleiben
 - **S1** (beobachtet): Nicht geschlossene `BluetoothGatt`-Instanzen führen zu doppelten Notifications.
-- **S2** (beobachtet): Der H10 meldet keinen Hautkontakt. Nach dem Abnehmen sendet er etwa 11 s lang den letzten Wert ohne RR, danach trennt er die Verbindung. Bei schlechtem Kontakt kommt HF 0.
-- **S3** (beobachtet): Ohne Foreground Service und Ongoing Activity wird die App etwa 1 min nach dem Ambient-Wechsel unsichtbar. Etwa 2 min später kommt keine HF mehr.
-- **S4** (beobachtet): Mit sichtbarer Activity kommen die BLE-Notifications auch im Ambient-Modus etwa im Sekundentakt.
-
-## Optionen
-
-### A. Aufbau des Service
-- **(A1) Ein Service `TrainingService` mit `health|location|connectedDevice`.** Er hält Exercise und BLE-Verbindung, eine Notification und eine Ongoing Activity.
-- **(A2) Zwei Services:** einer für die Exercise (`health|location`), einer für BLE (`connectedDevice`). Das ergibt zwei Lebenszyklen, die synchron bleiben müssen, und zwei Notifications bzw. Ongoing Activities. Der einzige Vorteil wäre, dass BLE ohne Training laufen könnte. Das verlangt spec.md nicht.
-
-### B. Wiederverbindung zum H10
-- **(B1) Nur `autoConnect = true`** mit genau einer Instanz.
-- **(B2) `autoConnect = true` mit genau einer Instanz plus Watchdog.** Ist der Sensor nach einer festen Zeit nicht wieder verbunden, wird die Instanz geschlossen und neu aufgebaut.
-- **(B3) CompanionDeviceManager** mit Erkennung, ob der Sensor in Reichweite ist. Die Verfügbarkeit auf Wear OS ist unklar (W6). CDM bringt einen eigenen Kopplungsdialog mit und hilft nur, wenn der Prozess nicht läuft. Das kommt bei einem laufenden Foreground Service nicht vor.
-
-### C. Datenfluss Service → Oberfläche
-- **(C1) App-weiter Zustandshalter mit `StateFlow`.** Der Service schreibt, die Oberfläche liest.
-- **(C2) Gebundener Service** (Binder) wie im Android-BLE-Beispiel.
+- **S2** (beobachtet): Nach dem Abnehmen sendet der H10 etwa 11 s lang den letzten Wert, danach trennt er die Verbindung. Bei schlechtem Kontakt kommt HF 0.
+- **S3** (beobachtet): Ohne Foreground Service und Ongoing Activity bricht die HF etwa 3 min nach dem Ambient-Wechsel ab.
 
 ## Entscheidung
 
-**A1, B2, C1.**
+### 1. Service: wie `ExerciseSampleCompose`
+- `TrainingService` ist ein `LifecycleService`, gebunden und gestartet, mit `START_STICKY`. Sein Verhalten nach einem Neustart und beim Lösen der Bindung (3 s Wartezeit) folgt dem Beispiel (W6b).
+- Der Zustand kommt als `StateFlow` über den Binder an die Oberfläche (wie im Beispiel).
+- `startForeground` erst bei `startExercise()`, wie im Beispiel. **Abweichung:** mit `location|health|connectedDevice` statt `location|health`, weil der Service auch die H10-Verbindung hält (ADR 0001). Manifest: `foregroundServiceType="health|location|connectedDevice"`.
+- Bei `isEnded` wird die Notification entfernt, wie im Beispiel. **Zusätzlich** wird die BLE-Verbindung geschlossen.
 
-1. **Ein `TrainingService`** mit `android:foregroundServiceType="health|location|connectedDevice"`. Gestartet wird er mit allen drei Typen aus der sichtbaren Activity, wenn der Nutzer die Trainingsvorbereitung öffnet (W1). Ein Start aus dem Hintergrund ist nicht vorgesehen.
+### 2. Bildschirme und Ablauf: Bedienung wie die Google-Trainings-App, Aufbau wie das Beispiel
+1. **Sportart wählen:** Laufen oder Radfahren (spec.md).
+2. **Nicht verfügbar:** Erscheint, wenn die Abfrage der Fähigkeiten die Sportart nicht unterstützt. Wie im Beispiel.
+3. **Vorbereitung** (wie im Beispiel):
+   - Berechtigungen anfragen.
+   - Warnung, wenn eine andere App trainiert.
+   - `prepareExercise()` aufrufen.
+   - GPS-Status am Rand anzeigen und einen Start-Button.
+   - **Zusätzlich:** Der Sensorstatus des H10 (Suche / verbunden / getrennt) steht neben dem GPS-Status, und die H10-Verbindung wird schon hier aufgebaut.
+   - Gestartet werden kann auch ohne GPS-Fix und ohne H10, wie in der Google-App: GPS bzw. der Sensor verbinden sich dann später.
+4. **Training:** horizontaler Pager wie im Beispiel.
+   - Eine Seite mit der Steuerung (Pause/Weiter, Ende), erreichbar mit nach rechts Wischen, wie in der Google-App.
+   - Die Messwertseite ist Startseite und zeigt die Werte von **Seite 1 aus spec.md**: Distanz, Uhrzeit, aktuelle Pace, aktuelle HF.
+   - Seite 2 aus spec.md (Ø-HF, Ø-Pace) ist Priorität 2 und kommt später als weitere Pager-Seite dazu.
+5. **Zusammenfassung** nach dem Ende, wie im Beispiel und in der Google-App: Dauer, Distanz, Ø-HF, Ø-Pace.
 
-2. **Lebenszyklus:**
-   - **Vorbereitung:**
-     - Service starten.
-     - `getCurrentExerciseInfoAsync()` prüfen. Bei `OTHER_APP_IN_PROGRESS` wird nachgefragt, bevor eine andere Exercise beendet wird (W2).
-     - `prepareExerciseAsync()` aufrufen und die Verbindung zum H10 aufbauen.
-     - Die Oberfläche zeigt dabei den GPS- und Sensorstatus.
-   - **Start:**
-     - `startExerciseAsync()` mit `ExerciseType` je Sportart, `isGpsEnabled = true` und den Datentypen `DISTANCE_TOTAL`, `PACE`, `PACE_STATS`, `SPEED`, `LOCATION`.
-     - Welche Typen tatsächlich angefragt werden, ergibt sich aus der Abfrage der Fähigkeiten zur Laufzeit.
-     - `HEART_RATE_BPM` wird nicht angefragt (ADR 0001, Punkt 3).
-   - **Pause/Ende:**
-     - Der Zustand kommt ausschließlich aus `ExerciseUpdate` (W2).
-     - Bei jedem `isEnded`, auch durch eine andere App oder durch Verlust einer Berechtigung, wird die BLE-Verbindung geschlossen und die Notification entfernt. Dann wird der Service beendet.
-   - **Abbruch der Vorbereitung:** Verlässt der Nutzer die Vorbereitung ohne Start, wird `endExercise()` aufgerufen, die Verbindung geschlossen und der Service gestoppt.
-   - Die BLE-Verbindung besteht **nur** zwischen Vorbereitung und Ende des Trainings.
+Pause, Weiter und Ende laufen über `ExerciseClient`. Der Zustand kommt nur aus `ExerciseUpdate` (W2).
 
-3. **Ongoing Activity** (`androidx.wear:wear-ongoing`) für die ganze Dauer, verknüpft mit der Foreground-Notification. Der Touch-Intent führt zur Trainingsanzeige (W4). Live Update (ab Wear OS 7) wird nicht genutzt, weil die Ongoing Activity auf allen Versionen ab minSdk 33 funktioniert.
+### 3. Ongoing Activity: wie im Beispiel
+Notification mit `CATEGORY_WORKOUT`, Ongoing Activity mit Stoppuhr-Status und einem Touch-Intent zurück ins Training (W4, W6b).
 
-4. **BLE-Verbindung (B2):**
-   - **Genau eine `BluetoothGatt`-Instanz** pro Sensor, gehalten von einer einzigen Klasse. Vor jedem neuen Verbindungsaufbau wird die alte Instanz mit `close()` geschlossen (S1).
-   - **Erste Verbindung** direkt, mit `autoConnect = false`. Nach einer Trennung wird die alte Instanz geschlossen und eine neue mit `autoConnect = true` aufgebaut (W5).
-   - **Watchdog:** Ist der Sensor 60 s nach der Trennung nicht wieder verbunden, wird die Instanz geschlossen und eine neue mit `autoConnect = true` aufgebaut. Das wiederholt sich bis zum Trainingsende. Einen periodischen Scan gibt es nicht. Der Wert 60 s ist eine Annahme und wird in der Validierung überprüft.
-   - **API-Weiche:**
-     - Auf API ≥ 37 wird `connectGatt(BluetoothGattConnectionSettings, Executor, callback)` genutzt, mit `setAutoConnectEnabled(…)` und `setTransport(TRANSPORT_LE)`.
-     - Darunter wird die bisherige Variante mit `TRANSPORT_LE` genutzt (W5).
-   - **Gemerkter Sensor:**
-     - Die Adresse des zuletzt gewählten H10 wird gespeichert. Gesucht wird nur, wenn noch kein Sensor bekannt ist oder der Nutzer einen anderen wählt.
-     - Wo die Adresse gespeichert wird, regelt das ADR zu Room bzw. Einstellungen.
+### 4. Ambient: wie im Beispiel
+- Die Messwerte bleiben im Ambient-Modus sichtbar, in Graustufen (`ambientGray` wie im Beispiel).
+- Die Daten werden im Service unabhängig vom Display lückenlos gespeichert.
+- **Später** (nicht MVP, nicht in spec.md): eine Einstellung „Display während des Trainings an“, wie „Always-on screen“ in der Google-App.
 
-5. **Sensorstatus:** Die drei Zustände aus spec.md werden um einen Zustand für fehlenden Kontakt erweitert (S2):
-   - `Suche`: Scan oder `autoConnect` wartet.
-   - `Verbunden`: Notifications kommen.
-   - `Kein Kontakt`: HF = 0 oder 5 s lang Pakete ohne RR-Intervalle. Die Anzeige zeigt `--`, und diese Werte gehen nicht in die Ø-HF ein.
-   - `Getrennt`: Die Verbindung ist weg, der Watchdog läuft.
+### 5. H10: Auswahl wie früher in Google Fit, Verbindung nach Android-Doku
+Hier gibt es keine aktuelle Google-Vorlage (W6a). Deshalb gilt:
+- **Auswahl:** Der H10 wird **einmal** in den Einstellungen der App gewählt (Suche mit Filter auf den Heart Rate Service), wie früher „Bluetooth sensors“ in Google Fit. Danach verbindet sich die App bei jedem Training automatisch mit dem gemerkten Sensor. Wo die Adresse gespeichert wird, regelt ADR 0003.
+- **Anzeige:** Neben dem BPM-Wert steht ein kleines Bluetooth-Symbol, solange die HF vom H10 kommt, wie früher in Google Fit. Der Sensorstatus aus spec.md (Suche / verbunden / getrennt) steht auf der Messwertseite.
+- **Verbindung:**
+  - **Genau eine `BluetoothGatt`-Instanz**, gehalten vom Service. Vor jedem neuen Aufbau wird die alte mit `close()` geschlossen (S1).
+  - Die erste Verbindung läuft direkt. Nach einer Trennung wird die alte Instanz geschlossen und eine neue mit `autoConnect = true` aufgebaut (W5).
+  - **Watchdog:** Ist der Sensor nach 60 s nicht wieder verbunden, wird die Instanz geschlossen und neu aufgebaut. Der Wert ist eine Annahme und wird in der Validierung überprüft.
+  - Auf API ≥ 37 wird `connectGatt(BluetoothGattConnectionSettings, …)` genutzt, darunter die bisherige Variante, jeweils mit `TRANSPORT_LE`.
+- **HF 0:** Wird als `--` angezeigt und zählt nicht in die Ø-HF (S2). Eine weitere Kontakterkennung gibt es nicht.
+- **Bekannte Grenze:** Nach dem Abnehmen zeigt die App bis zu etwa 11 s den letzten Wert, bis der H10 die Verbindung trennt (S2).
+- Die BLE-Verbindung besteht nur von der Vorbereitung bis zum Ende des Trainings.
 
-   Die Schwelle von 5 s ist eine Annahme und wird in der Validierung überprüft.
+### 6. Zeitbasis und Speicherung
+- Zeitbasis wie in ADR 0001, Punkt 4. Die Dauer wird aus dem `activeDurationCheckpoint` berechnet, wie im Beispiel.
+- Messwerte werden **während** des Trainings laufend gespeichert (Room laut Health-Services-Doku). Das Schema regelt ADR 0003.
 
-6. **Datenfluss (C1):**
-   - Ein app-weiter `TrainingRepository` hält den Zustand als `StateFlow`:
-     - Trainingszustand
-     - Sensorstatus
-     - letzte HF mit Zeitstempel
-     - letzte Distanz, Pace und Dauer-Checkpoint
-   - Der Service schreibt, die Oberfläche liest.
-   - Die Oberfläche bindet sich nicht an den Service. Befehle (Start, Pause, Ende) gehen über `Intent` bzw. Methoden des Repositorys an den Service.
-   - Wie das Repository bereitgestellt wird (Koin) und gespeichert wird (Room), regelt ADR 0003.
-   - Schon hier gilt: Messwerte werden **während** des Trainings laufend gespeichert, nicht erst am Ende. So geht bei einem Absturz nichts verloren.
-
-7. **Ambient:**
-   - Die Trainingsanzeige reagiert mit `LocalAmbientModeManager`.
-   - Im Ambient-Modus erscheinen HF, Pace und Distanz als `--`. Uhrzeit und Dauer werden etwa einmal pro Minute aktualisiert (W4).
-   - Gespeichert wird im Service unabhängig vom Display weiter (S4).
-
-8. **Zeitbasis** wie in ADR 0001, Punkt 4: `elapsedRealtimeNanos()` für BLE-Proben, „Zeit seit Boot“ für Health Services. Die aktive Dauer wird aus dem Checkpoint berechnet, nicht aus der Häufigkeit der Updates (W2).
+## Bewusst nicht übernommen (vorerst)
+- **Auto-Pause, Ziele, Runden, HF-Zonen-Hinweise:** Die Google-App und das Beispiel haben sie, spec.md verlangt sie im MVP aber nicht. HF-Zonen sind dort Priorität 3.
+- **Horologist-Bibliotheken des Beispiels:** Für den MVP sind sie nicht nötig. Die Wear-Compose-Bausteine reichen.
+- **Hilt und `SwipeDismissableNavHost` aus dem Beispiel:** Stattdessen Koin und Navigation 3 (CLAUDE.md).
 
 ## Konsequenzen
 
 - **Manifest wear:**
-  - Zusätzlich zu den Berechtigungen aus ADR 0001 (inkl. Nachtrag minSdk 33): `<service android:name=".training.TrainingService" android:foregroundServiceType="health|location|connectedDevice" android:exported="false">`.
-  - Dazu `POST_NOTIFICATIONS`. Für den Start des Foreground Service ist die Berechtigung laut Doku nicht nötig. Ohne sie erscheint die Notification aber nicht in der Notification-Leiste (wear-training-service.md, Frage 3). Ob die Ongoing Activity ohne die Berechtigung angezeigt wird, ist nicht belegt. Deshalb wird sie angefragt.
-- **Neue Abhängigkeiten:** `androidx.health:health-services-client:1.1.0`, `androidx.wear:wear-ongoing:1.1.0`.
-- **Abfrage der Berechtigungen** vor dem Start, gebündelt in der Vorbereitung:
-  - `BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT`, `ACCESS_FINE_LOCATION`, `ACTIVITY_RECOGNITION`, `READ_HEART_RATE` (API ≥ 36) bzw. `BODY_SENSORS` (≤ 35), `POST_NOTIFICATIONS`
-  - Prüfung, ob GPS eingeschaltet ist (`isProviderEnabled(GPS_PROVIDER)`)
-- **Der Spike-Code** (`HeartRateBleClient`, Spike-Screen) wird ersetzt, nicht erweitert. `HeartRateParser` mit seinen Tests bleibt.
+  - Berechtigungen wie im Beispiel: `BODY_SENSORS` (maxSdk 35), `READ_HEART_RATE`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `ACTIVITY_RECOGNITION`, `POST_NOTIFICATIONS`, `WAKE_LOCK`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_HEALTH`, `FOREGROUND_SERVICE_LOCATION`.
+  - `<queries>` auf `com.google.android.wearable.healthservices`, Activity mit `singleTask`.
+  - **Zusätzlich:** `BLUETOOTH_SCAN` (`neverForLocation`), `BLUETOOTH_CONNECT`, `FOREGROUND_SERVICE_CONNECTED_DEVICE`.
+- **Neue Abhängigkeiten:** `androidx.health:health-services-client:1.1.0`, `androidx.wear:wear-ongoing:1.1.0`, `androidx.lifecycle:lifecycle-service`.
+- **Der Spike-Code** (`HeartRateBleClient`, Spike-Screen) wird ersetzt. `HeartRateParser` mit seinen Tests bleibt.
 - **Offene Risiken (Vermutungen):**
-  - `health|location|connectedDevice` wirft auf Wear OS 7 trotz erfüllter Voraussetzungen eine Ausnahme.
-  - `autoConnect` verbindet auf der Pixel Watch 2 auch mit einer einzigen Instanz nicht zuverlässig. Dann muss B2 durch einen Scan mit Adressfilter ergänzt werden.
+  - `location|health|connectedDevice` wirft auf Wear OS 7 eine Ausnahme. Das Beispiel nutzt nur `location|health`.
+  - `autoConnect` verbindet auf der Pixel Watch 2 auch mit einer einzigen Instanz nicht zuverlässig. Dann wird um einen Scan mit Adressfilter ergänzt.
   - Health Services lehnt eine Exercise ohne `HEART_RATE_BPM` ab oder schränkt sie ein.
   - Akkuverbrauch: GPS, BLE und Display für mehr als 60 min.
-- **Folge-ADR 0003:** Koin (Bereitstellung von `TrainingRepository` und Clients), Room (Schema für Einheit, HF-Zeitreihe und Health-Services-Zeitreihe, gemerkter Sensor), Navigation 3 (Vorbereitung → Training → Zusammenfassung). Erst danach beginnt die Implementierung.
+- **Folge-ADR 0003:** Koin (anstelle von Hilt im Beispiel), Room (Einheit, HF-Zeitreihe, Health-Services-Zeitreihe, gemerkter Sensor) und Navigation 3 (die Bildschirme aus Punkt 2). Erst danach beginnt die Implementierung.
 
 ## Validierung: erste Implementierung
 
-Gearbeitet wird nach Annahme dieses ADR und von ADR 0003 auf einem eigenen Branch. Die Kriterien gelten auf der Pixel Watch 2 (Wear OS 7) mit dem H10. Die Ergebnisse kommen wie beim Spike nach `docs/research/` (Logs und Auswertung).
+Gearbeitet wird nach Annahme dieses ADR und von ADR 0003 auf einem eigenen Branch. Getestet wird auf der Pixel Watch 2 (Wear OS 7) mit dem H10. Die Ergebnisse kommen wie beim Spike nach `docs/research/`.
 
-1. **Foreground Service startet:** `startForeground` mit `health|location|connectedDevice` wirft keine Ausnahme. Die Ongoing Activity ist auf dem Zifferblatt sichtbar.
-2. **Kriterium 2 aus ADR 0001 (offener Prüfpunkt):** Im laufenden Training den H10 vom Gurt nehmen. Die App zeigt `Kein Kontakt` und dann `Getrennt`. Nach dem Wiederanlegen ist der Sensor **ohne Eingabe** innerhalb von 30 s wieder `Verbunden`. Pro Paket gibt es genau eine Logzeile, also keine Kopien.
-3. **Hintergrund:** Training mindestens 10 min. Dabei je mindestens 3 min Display ambient, Display aus (Always-on aus) und eine andere App im Vordergrund. Danach zeigt das Log lückenlose HF etwa im Sekundentakt, Lücken unter 5 s. Der Prozess wurde nicht beendet oder eingefroren.
+1. **Foreground Service startet:** `startForeground` mit `location|health|connectedDevice` wirft keine Ausnahme. Die Ongoing Activity ist auf dem Zifferblatt sichtbar.
+2. **Kriterium 2 aus ADR 0001 (offener Prüfpunkt):**
+   - Im laufenden Training den H10 vom Gurt nehmen. Die App zeigt den Status „getrennt“.
+   - Nach dem Wiederanlegen ist der Sensor **ohne Eingabe** innerhalb von 30 s wieder „verbunden“.
+   - Pro Paket gibt es genau eine Logzeile, also keine Kopien.
+3. **Hintergrund:** Training mindestens 10 min.
+   - Dabei je mindestens 3 min Display ambient, Display aus (Always-on aus) und eine andere App im Vordergrund.
+   - Danach zeigt das Log lückenlose HF etwa im Sekundentakt, Lücken unter 5 s.
+   - Der Prozess wurde nicht beendet oder eingefroren.
 4. **Lauf im Freien:** mindestens 20 min mit GPS und H10. Die Distanz weicht höchstens etwa 5 % von einer bekannten Strecke ab, die Pace ist plausibel und die HF läuft parallel.
-5. **Beobachtung:** Akkuverbrauch in % pro 30 min Training.
-6. **Beobachtung:** Verhalten, wenn während des Trainings eine andere App eine Exercise startet.
+5. **Vergleich mit der Google-Trainings-App (Beobachtung):** Gleiche Strecke einmal mit heartrun und einmal mit der Google-App aufzeichnen. Distanz und Pace vergleichen.
+6. **Beobachtung:** Akkuverbrauch in % pro 30 min Training.
 
 Fällt Kriterium 1 oder 2 durch, wird dieses ADR neu bewertet. Fällt Kriterium 2 durch, wird auch ADR 0001 neu bewertet.

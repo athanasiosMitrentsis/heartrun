@@ -2,7 +2,7 @@
 
 Stand: 2026-10-22 (alle Quellen an diesem Tag abgerufen)
 Bezug: ADR 0001 (Entscheidung, Konsequenzen „Ein Foreground Service“ und offener Prüfpunkt zu Kriterium 2), docs/research/polar-ble.md (Spike-Ergebnisse)
-Erlaubte Quellen: developer.android.com, polar.com / support.polar.com, github.com/polarofficial
+Erlaubte Quellen: developer.android.com, polar.com / support.polar.com, github.com/polarofficial. Für Frage 6 zusätzlich support.google.com und github.com/android.
 
 Legende:
 - **Belegt**: steht so in der genannten Quelle (Zitat oder enge Paraphrase).
@@ -164,6 +164,80 @@ https://developer.android.com/reference/kotlin/androidx/health/services/client/d
 
 ---
 
+## Frage 6: Wie machen es bewährte Apps? (Google-Trainings-App und Googles Beispiel-App)
+
+Ergänzt am 2026-10-22 auf Wunsch des Menschen: Wir bauen nach, was es schon gibt, nur mit dem H10 als Live-HF-Quelle. Für das Verhalten der Google-App sind dafür zusätzlich **support.google.com** und **github.com/android** (offizielle Beispiele) als Quellen zugelassen.
+
+### 6a. Google-Trainings-App (Fitbit Exercise / Google Health) auf der Pixel Watch
+
+**Belegt**
+https://support.google.com/googlehealth/answer/14237206?hl=en (abgerufen 2026-10-22)
+- Start: „Select Play to start the exercise“. Auf GPS kann man warten oder sofort starten, GPS verbindet sich dann später („GPS can take minutes to connect“).
+- Pause und Ende: nach rechts wischen, dann Pause bzw. End. „When you're done with your workout, swipe right then tap End. Your workout summary appears.“
+- Auto-Pause gibt es für Gehen, Laufen und Rad. Sie wird in den Trainingseinstellungen eingeschaltet. Nach 10 min ohne Aktivität fragt die Uhr, ob das Training beendet werden soll.
+- Anzeige: Unter Settings → Workout Views → Key Metrics wird gewählt, welche Werte in welchem Feld stehen.
+- **Display:** „Enable the always-on screen option to prevent the screen from turning off during a workout.“ Das ist eine Einstellung in der Trainings-App, kein Standard. Was im Always-on-Modus angezeigt wird, sagt die Seite nicht.
+- HF-Zonen: Hinweise beim Zonenwechsel bzw. beim Verlassen einer Zielzone. Das ist Priorität 3 in spec.md.
+
+**Belegt: externe HF-Sensoren**
+- Die alte Google-Fit-App auf der Uhr hatte unter Einstellungen → „Bluetooth sensors“ eine einmalige Auswahl des Brustgurts. Lieferte der Gurt die HF, stand „Bluetooth“ neben dem BPM-Wert. Das galt aber: „Bluetooth heart rate sensors are only supported on Wear OS 3 and below.“
+  https://support.google.com/wearos/answer/9429085?hl=en&co=GENIE.Platform%3DAndroid (abgerufen 2026-10-22)
+- Die aktuelle Pixel Watch kann ihre HF an Geräte und Apps **senden** („Connected Fitness“). Dass sie einen Brustgurt **empfängt**, steht auf den Supportseiten nicht.
+  https://support.google.com/googlehealth/answer/14236705 (abgerufen 2026-10-22)
+
+**Folgerung (Vermutung)**
+- Für den Kern dieses Projekts, Live-HF vom H10 auf der Uhr, gibt es auf der Pixel Watch mit Wear OS 4 oder neuer **keine bewährte Google-Vorlage**. Als Vorbild für den Sensor-Teil bleibt nur das alte Google-Fit-Verhalten: Sensor einmal in den Einstellungen wählen, danach automatisch nutzen, Quelle neben dem BPM-Wert anzeigen.
+- Für alles andere (Start, Pause, Ende, Display, Zusammenfassung) ist die Google-Trainings-App das Vorbild.
+
+### 6b. Googles offizielle Beispiel-App „ExerciseSampleCompose“
+
+Quelle: https://github.com/android/health-samples/tree/main/health-services/ExerciseSampleCompose (Code abgerufen 2026-10-22, Branch `main`). Gelesen wurden `AndroidManifest.xml`, `service/ExerciseService.kt`, `service/ExerciseServiceMonitor.kt`, `service/ExerciseNotificationManager.kt`, `presentation/ExerciseSampleApp.kt`, `presentation/preparing/PreparingExerciseScreen.kt`, `presentation/exercise/ExerciseScreen.kt`, `presentation/ambient/AmbientUI.kt` und `app/build.gradle`.
+
+**Belegt (aus dem Code)**
+- **Service:**
+  - `ExerciseService` ist ein `LifecycleService`, der zugleich **gebunden und gestartet** ist. Die Activity bindet sich, und `onBind` startet den Service zusätzlich per `startService`.
+  - Über den Binder bekommt die Oberfläche einen `Flow<ExerciseServiceState>`.
+  - `onStartCommand` gibt `START_STICKY` zurück. Nach einem Neustart durch das System prüft der Service, ob noch eine Exercise läuft. Läuft keine, beendet er sich, und eine hängende Vorbereitung wird mit `endExercise()` abgebrochen.
+  - Nach `onUnbind` wartet er 3 s, bevor er sich ggf. beendet, damit z. B. eine Drehung der Konfiguration ihn nicht stoppt.
+- **Zeitpunkt von `startForeground`:**
+  - Der Service geht erst bei `startExercise()` in den Vordergrund, nicht schon bei `prepareExercise()`.
+  - Er nutzt `ServiceCompat.startForeground(…)` mit `FOREGROUND_SERVICE_TYPE_LOCATION` und ab API 34 zusätzlich `FOREGROUND_SERVICE_TYPE_HEALTH`.
+  - Beim Ende (`isEnded`) entfernt `stopForeground(STOP_FOREGROUND_REMOVE)` die Notification.
+- **Manifest:** `foregroundServiceType="health|location"`. Berechtigungen:
+  - `BODY_SENSORS` (maxSdk 35), `READ_HEART_RATE`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `ACTIVITY_RECOGNITION`, `POST_NOTIFICATIONS`, `WAKE_LOCK`, `FOREGROUND_SERVICE(_HEALTH|_LOCATION)`
+  - `<queries>` auf `com.google.android.wearable.healthservices`
+  - Activity mit `launchMode="singleTask"`
+- **Ongoing Activity:**
+  - Eine Notification mit `setOngoing(true)` und `CATEGORY_WORKOUT`.
+  - Daran hängt eine `OngoingActivity` mit statischem und animiertem Icon und einem Touch-Intent auf die `MainActivity`.
+  - Als Status dient eine Stoppuhr (`Status.StopwatchPart`), die ab dem Start-Zeitpunkt aus `elapsedRealtime()` läuft.
+- **Abläufe und Bildschirme:**
+  - Ohne passende Fähigkeiten zeigt die App einen Bildschirm „nicht verfügbar“.
+  - **Vorbereitung:**
+    - fragt Berechtigungen an
+    - zeigt den GPS-Status als gebogenen Text am Rand (`acquiring`, `acquired`, `disabled`, `unavailable`) und einen Start-Button
+    - warnt per Dialog, wenn eine andere App schon ein Training führt
+  - **Training:** Ein horizontaler Pager mit 2 Seiten. Seite 0 hat die Steuerung (Stop, Pause/Weiter), Seite 1 die Messwerte (HF, Kalorien, Distanz, Dauer). Er startet auf den Messwerten. Nach Pause oder Weiter springt er automatisch zurück zu den Messwerten.
+  - Bei `isEnded` geht es zur **Zusammenfassung** (Ø-HF, Distanz, Kalorien, Dauer).
+- **Ambient:**
+  - Die Messwerte bleiben im Ambient-Modus **sichtbar**. `Modifier.ambientGray` zeigt sie in Graustufen, leicht verkleinert und ohne Antialiasing.
+  - Daneben gibt es `Modifier.ambientBlank`, das Inhalte im Ambient-Modus ausblendet. Die Trainingsanzeige nutzt es nicht.
+  - Erkannt wird der Ambient-Modus über `LocalAmbientModeManager`.
+- **Dauer:** Sie wird aus dem `activeDurationCheckpoint` berechnet und fortgeschrieben, nicht aus der Häufigkeit der Updates.
+- **Build:** minSdk 30, targetSdk 36, DI mit Hilt, Navigation mit `SwipeDismissableNavHost`, zusätzlich die Horologist-Bibliotheken.
+
+**Abgleich mit der Always-on-Doku**
+- Die Doku (Frage 3) empfiehlt, schnell wechselnde Werte im Ambient-Modus durch `--` zu ersetzen. Googles eigenes Trainingsbeispiel zeigt sie dagegen in Graustufen weiter an. Die Google-Trainings-App bietet zusätzlich die Einstellung „Always-on screen“, die das Display während des Trainings gar nicht erst ausschaltet.
+
+**Vermutung**
+- Für unser Projekt passt der Aufbau des Beispiels fast direkt. Unterschiede:
+  - Koin statt Hilt (CLAUDE.md).
+  - Navigation 3 statt `SwipeDismissableNavHost` (CLAUDE.md).
+  - Die BLE-Verbindung zum H10 liegt zusätzlich im Service, mit dem Foreground-Service-Typ `connectedDevice`.
+  - Die HF kommt vom H10 statt aus `HEART_RATE_BPM`.
+
+---
+
 ## Quellen (alle abgerufen 2026-10-22)
 - https://developer.android.com/develop/background-work/services/fgs/service-types
 - https://developer.android.com/develop/background-work/services/fgs/declare
@@ -175,6 +249,10 @@ https://developer.android.com/reference/kotlin/androidx/health/services/client/d
 - https://developer.android.com/training/wearables/ongoing-activity
 - https://developer.android.com/training/wearables/views/always-on
 - https://developer.android.com/develop/ui/views/notifications/notification-permission
+- https://support.google.com/googlehealth/answer/14237206?hl=en
+- https://support.google.com/googlehealth/answer/14236705
+- https://support.google.com/wearos/answer/9429085?hl=en&co=GENIE.Platform%3DAndroid
+- https://github.com/android/health-samples/tree/main/health-services/ExerciseSampleCompose (Code, Branch `main`)
 - https://developer.android.com/develop/connectivity/bluetooth/ble/background
 - https://developer.android.com/develop/connectivity/bluetooth/ble/connect-gatt-server
 - https://developer.android.com/reference/android/bluetooth/BluetoothDevice
