@@ -77,3 +77,19 @@ Das Projekt nutzt minSdk 33 (siehe `wear/build.gradle.kts`, `mobile/build.gradle
 - **R5:** Das minSdk-Argument gegen das Polar BLE SDK fällt weg. Die Entscheidung für Option (b) gilt trotzdem weiter: Das SDK hat keine dokumentierte Wear-OS-Unterstützung, und das MVP braucht nur das Standard-Heart-Rate-Profil.
 - **Manifest wear:** Für den BLE-Scan wird `ACCESS_FINE_LOCATION` nicht gebraucht. Die gilt laut bt-permissions nur bis API 30. Das gilt auch für die Legacy-Berechtigungen `BLUETOOTH`/`BLUETOOTH_ADMIN`. `ACCESS_FINE_LOCATION` bleibt aber nötig, weil Health Services mit `isGpsEnabled = true` läuft (R4).
 - Die API-33-Varianten `onCharacteristicChanged(gatt, characteristic, value)` und `writeDescriptor(descriptor, value)` können direkt genutzt werden, ohne Versionsweiche.
+
+## Nachtrag 2026-10-22: Bewertung des Spikes
+
+Die Ergebnisse stehen in docs/research/polar-ble.md, Abschnitt „Spike-Ergebnisse (2026-10-22)“.
+
+- Kriterium 1 ist erfüllt.
+- Kriterium 2 ist nur teilweise erfüllt. Die Trennung wird erkannt (nach etwa 11 s), die Wiederverbindung ist aber nur manuell nachgewiesen. Ursache ist nach Analyse der Spike-Code: Mehrere `BluetoothGatt`-Instanzen wurden nicht aufgeräumt. Der Ansatz selbst ist nicht die Ursache.
+
+**Entscheidung (Mensch, 2026-10-22):** Das ADR wird nicht neu bewertet. Wir gehen davon aus, dass Option (b) trägt, und gehen ohne Nachbesserung des Spikes weiter.
+
+**Offener Prüfpunkt, später nachzuholen:** Kriterium 2 wird in der ersten Implementierung mit Foreground Service erneut und korrekt geprüft. Dafür gilt:
+- genau eine GATT-Instanz pro Sensor
+- aktive Wiederverbindung
+- Test 2 (Sensor vom Gurt abnehmen und wieder anlegen) und Test 4 (App im Hintergrund, Display ambient und aus) werden wiederholt
+
+Fällt die automatische Wiederverbindung dann durch, wird dieses ADR neu bewertet.
