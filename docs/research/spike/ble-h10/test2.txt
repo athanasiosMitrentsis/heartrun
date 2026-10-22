@@ -1,0 +1,175 @@
+2026-10-22 11:10:55.770 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663884543910753 dt=1039ms bpm=69 rr=[1846] contact=null raw=10456307
+2026-10-22 11:10:56.785 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1663885557856742 dt=1013ms bpm=69 rr=[892] contact=null raw=10459203
+2026-10-22 11:10:57.777 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1663886550577575 dt=992ms bpm=69 rr=[858] contact=null raw=10456f03
+2026-10-22 11:10:58.809 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1663887583076793 dt=1032ms bpm=69 rr=[841] contact=null raw=10455e03
+2026-10-22 11:10:59.792 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1663888566523251 dt=983ms bpm=69 rr=[] contact=null raw=0045
+2026-10-22 11:11:00.794 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663889567416428 dt=1000ms bpm=69 rr=[896] contact=null raw=10459603
+2026-10-22 11:11:01.515 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663890290577157 state=DOZE(ambient)
+2026-10-22 11:11:01.771 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663890545722678 dt=978ms bpm=69 rr=[] contact=null raw=0045
+2026-10-22 11:11:02.825 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663891599730020 dt=1054ms bpm=69 rr=[] contact=null raw=0045
+2026-10-22 11:11:03.790 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663892564978510 dt=965ms bpm=69 rr=[987] contact=null raw=1045f303
+2026-10-22 11:11:04.821 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663893595594497 dt=1030ms bpm=69 rr=[2761] contact=null raw=10450c0b
+2026-10-22 11:11:05.827 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663894601759599 dt=1006ms bpm=68 rr=[2600] contact=null raw=1044670a
+2026-10-22 11:11:06.867 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1663895641802879 dt=1040ms bpm=68 rr=[833] contact=null raw=10445603
+2026-10-22 11:11:07.811 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1663896585439806 dt=943ms bpm=68 rr=[883, 885] contact=null raw=104489038b03
+2026-10-22 11:11:08.840 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1663897614144700 dt=1028ms bpm=68 rr=[1512] contact=null raw=10440d06
+2026-10-22 11:11:09.872 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1663898645587825 dt=1031ms bpm=68 rr=[366, 1051] contact=null raw=104477013504
+2026-10-22 11:11:10.806 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663899580550636 dt=934ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:11.813 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663900588055531 dt=1007ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:12.784 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663901558363447 dt=970ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:13.897 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663902671329643 dt=1112ms bpm=68 rr=[336, 3416] contact=null raw=10445901ab0d
+2026-10-22 11:11:14.906 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663903679334278 dt=1008ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:15.803 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663904578157455 dt=898ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:16.796 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663905570374225 dt=992ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:17.870 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663906644957245 dt=1074ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:18.846 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663907618972140 dt=974ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:19.813 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663908588125941 dt=969ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:20.813 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1663909587673909 dt=999ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:21.789 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1663910563600938 dt=975ms bpm=68 rr=[] contact=null raw=0044
+2026-10-22 11:11:22.052 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  onConnectionState() - status=257 connected=false device=XX:XX:XX:XX:B2:EA
+2026-10-22 11:11:22.052 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  unregisterApp()
+2026-10-22 11:11:22.058 16385-16396 HR                      de.mitre.heartrun                    D  gatt: connectionState=0 status=257 bond=BONDED
+2026-10-22 11:11:22.060 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  close()
+2026-10-22 11:11:22.060 16385-16396 HR                      de.mitre.heartrun                    D  gatt: reconnect 24:AC:AC:1D:B2:EA
+2026-10-22 11:11:22.077 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  onClientRegistered(0)
+2026-10-22 11:11:29.485 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663918260183844 state=ON
+2026-10-22 11:11:36.968 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663925743253685 state=DOZE(ambient)
+2026-10-22 11:11:37.619 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663926394677904 state=ON
+2026-10-22 11:11:39.808 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663928583199778 state=DOZE(ambient)
+2026-10-22 11:11:42.523 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663931298166183 state=ON
+2026-10-22 11:11:48.577 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663937352606389 state=DOZE(ambient)
+2026-10-22 11:11:50.119 16385-16390 .mitre.heartrun         de.mitre.heartrun                    I  Background young concurrent mark compact GC freed 2084KB AllocSpace bytes, 0(0B) LOS objects, 96% free, 4272KB/128MB, paused 302us,5.512ms total 45.237ms
+2026-10-22 11:11:51.231 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663940006181648 state=ON
+2026-10-22 11:12:01.232 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663950007587061 state=DOZE(ambient)
+2026-10-22 11:12:02.851 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663951626656226 state=ON
+2026-10-22 11:12:16.074 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663964849751429 state=DOZE(ambient)
+2026-10-22 11:12:19.601 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663968376838146 state=ON
+2026-10-22 11:12:31.998 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663980773580433 state=DOZE(ambient)
+2026-10-22 11:12:34.775 16385-16390 .mitre.heartrun         de.mitre.heartrun                    I  Background young concurrent mark compact GC freed 1940KB AllocSpace bytes, 0(0B) LOS objects, 96% free, 4284KB/128MB, paused 268us,5.988ms total 39.222ms
+2026-10-22 11:12:35.605 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663984380164805 state=ON
+2026-10-22 11:12:38.154 16385-16385 BluetoothLeScanner      de.mitre.heartrun                    D  could not find callback wrapper
+2026-10-22 11:12:38.154 16385-16385 HR                      de.mitre.heartrun                    D  scan: stopped
+2026-10-22 11:12:38.154 16385-16385 HR                      de.mitre.heartrun                    D  gatt: connect 24:AC:AC:1D:B2:EA bond=BONDED
+2026-10-22 11:12:38.160 16385-16395 BluetoothGatt           de.mitre.heartrun                    D  onClientRegistered(0)
+2026-10-22 11:12:49.515 16385-16385 HR                      de.mitre.heartrun                    D  display: t=1663998290640424 state=DOZE(ambient)
+2026-10-22 11:12:55.840 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  onConnectionState() - status=0 connected=true device=XX:XX:XX:XX:B2:EA
+2026-10-22 11:12:55.841 16385-16396 HR                      de.mitre.heartrun                    D  gatt: connectionState=2 status=0 bond=BONDED
+2026-10-22 11:12:55.842 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  discoverServices() - device: XX:XX:XX:XX:B2:EA
+2026-10-22 11:12:55.854 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  onConnectionState() - status=0 connected=true device=XX:XX:XX:XX:B2:EA
+2026-10-22 11:12:55.855 16385-16396 HR                      de.mitre.heartrun                    D  gatt: connectionState=2 status=0 bond=BONDED
+2026-10-22 11:12:55.855 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  discoverServices() - device: XX:XX:XX:XX:B2:EA
+2026-10-22 11:12:55.867 16385-16496 BluetoothGatt           de.mitre.heartrun                    D  onSearchComplete(XX:XX:XX:XX:B2:EA, _, 0)
+2026-10-22 11:12:55.868 16385-16496 HR                      de.mitre.heartrun                    D  gatt: servicesDiscovered status=0
+2026-10-22 11:12:55.868 16385-16496 HR                      de.mitre.heartrun                    D    service 00001800-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.869 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a00-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.869 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a01-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.869 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a04-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.870 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002aa6-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.870 16385-16496 HR                      de.mitre.heartrun                    D    service 00001801-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.870 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a05-0000-1000-8000-00805f9b34fb properties=0x20
+2026-10-22 11:12:55.871 16385-16496 HR                      de.mitre.heartrun                    D    service 0000180d-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.871 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a37-0000-1000-8000-00805f9b34fb properties=0x10
+2026-10-22 11:12:55.871 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a38-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.872 16385-16496 HR                      de.mitre.heartrun                    D    service 0000180a-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.872 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a29-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.873 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  onSearchComplete(XX:XX:XX:XX:B2:EA, _, 0)
+2026-10-22 11:12:55.873 16385-16396 HR                      de.mitre.heartrun                    D  gatt: servicesDiscovered status=0
+2026-10-22 11:12:55.874 16385-16396 HR                      de.mitre.heartrun                    D    service 00001800-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.874 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a00-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.874 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a01-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.875 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a04-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.875 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002aa6-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.876 16385-16396 HR                      de.mitre.heartrun                    D    service 00001801-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.877 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a05-0000-1000-8000-00805f9b34fb properties=0x20
+2026-10-22 11:12:55.877 16385-16396 HR                      de.mitre.heartrun                    D    service 0000180d-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.877 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a37-0000-1000-8000-00805f9b34fb properties=0x10
+2026-10-22 11:12:55.878 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a38-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.878 16385-16396 HR                      de.mitre.heartrun                    D    service 0000180a-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.879 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a29-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.879 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a24-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.880 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a25-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.880 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a27-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.881 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a26-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.881 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a28-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.882 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a23-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.882 16385-16496 HR                      de.mitre.heartrun                    D    service 0000180f-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.882 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 00002a19-0000-1000-8000-00805f9b34fb properties=0x12
+2026-10-22 11:12:55.883 16385-16496 HR                      de.mitre.heartrun                    D    service 6217ff4b-fb31-1140-ad5a-a45545d7ecf3
+2026-10-22 11:12:55.883 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 6217ff4c-c8ec-b1fb-1380-3ad986708e2d properties=0x2
+2026-10-22 11:12:55.883 16385-16496 HR                      de.mitre.heartrun                    D      characteristic 6217ff4d-91bb-91d0-7e2a-7cd3bda8a1f3 properties=0x24
+2026-10-22 11:12:55.884 16385-16496 HR                      de.mitre.heartrun                    D    service fb005c80-02e7-f387-1cad-8acd2d8df0c8
+2026-10-22 11:12:55.884 16385-16496 HR                      de.mitre.heartrun                    D      characteristic fb005c81-02e7-f387-1cad-8acd2d8df0c8 properties=0x2a
+2026-10-22 11:12:55.885 16385-16496 HR                      de.mitre.heartrun                    D      characteristic fb005c82-02e7-f387-1cad-8acd2d8df0c8 properties=0x10
+2026-10-22 11:12:55.885 16385-16496 HR                      de.mitre.heartrun                    D    service 0000feee-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.886 16385-16496 HR                      de.mitre.heartrun                    D      characteristic fb005c51-02e7-f387-1cad-8acd2d8df0c8 properties=0x1c
+2026-10-22 11:12:55.886 16385-16496 HR                      de.mitre.heartrun                    D      characteristic fb005c52-02e7-f387-1cad-8acd2d8df0c8 properties=0x10
+2026-10-22 11:12:55.886 16385-16496 HR                      de.mitre.heartrun                    D      characteristic fb005c53-02e7-f387-1cad-8acd2d8df0c8 properties=0xc
+2026-10-22 11:12:55.887 16385-16496 BluetoothGatt           de.mitre.heartrun                    D  setCharacteristicNotification() - uuid: 00002a37-0000-1000-8000-00805f9b34fb enable: true
+2026-10-22 11:12:55.894 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a24-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.895 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a25-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.897 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a27-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.897 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a26-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.898 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a28-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.898 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a23-0000-1000-8000-00805f9b34fb properties=0x2
+2026-10-22 11:12:55.899 16385-16396 HR                      de.mitre.heartrun                    D    service 0000180f-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.900 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 00002a19-0000-1000-8000-00805f9b34fb properties=0x12
+2026-10-22 11:12:55.901 16385-16396 HR                      de.mitre.heartrun                    D    service 6217ff4b-fb31-1140-ad5a-a45545d7ecf3
+2026-10-22 11:12:55.902 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 6217ff4c-c8ec-b1fb-1380-3ad986708e2d properties=0x2
+2026-10-22 11:12:55.902 16385-16396 HR                      de.mitre.heartrun                    D      characteristic 6217ff4d-91bb-91d0-7e2a-7cd3bda8a1f3 properties=0x24
+2026-10-22 11:12:55.903 16385-16396 HR                      de.mitre.heartrun                    D    service fb005c80-02e7-f387-1cad-8acd2d8df0c8
+2026-10-22 11:12:55.903 16385-16396 HR                      de.mitre.heartrun                    D      characteristic fb005c81-02e7-f387-1cad-8acd2d8df0c8 properties=0x2a
+2026-10-22 11:12:55.904 16385-16396 HR                      de.mitre.heartrun                    D      characteristic fb005c82-02e7-f387-1cad-8acd2d8df0c8 properties=0x10
+2026-10-22 11:12:55.904 16385-16396 HR                      de.mitre.heartrun                    D    service 0000feee-0000-1000-8000-00805f9b34fb
+2026-10-22 11:12:55.904 16385-16396 HR                      de.mitre.heartrun                    D      characteristic fb005c51-02e7-f387-1cad-8acd2d8df0c8 properties=0x1c
+2026-10-22 11:12:55.906 16385-16396 HR                      de.mitre.heartrun                    D      characteristic fb005c52-02e7-f387-1cad-8acd2d8df0c8 properties=0x10
+2026-10-22 11:12:55.908 16385-16396 HR                      de.mitre.heartrun                    D      characteristic fb005c53-02e7-f387-1cad-8acd2d8df0c8 properties=0xc
+2026-10-22 11:12:55.909 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  setCharacteristicNotification() - uuid: 00002a37-0000-1000-8000-00805f9b34fb enable: true
+2026-10-22 11:12:55.911 16385-16496 HR                      de.mitre.heartrun                    D  gatt: writeDescriptor(CCCD=0x01) result=0
+2026-10-22 11:12:55.922 16385-16396 HR                      de.mitre.heartrun                    D  gatt: writeDescriptor(CCCD=0x01) result=0
+2026-10-22 11:12:56.124 16385-16396 HR                      de.mitre.heartrun                    D  gatt: descriptorWrite 00002902-0000-1000-8000-00805f9b34fb status=0
+2026-10-22 11:12:56.153 16385-16396 HR                      de.mitre.heartrun                    D  gatt: descriptorWrite 00002902-0000-1000-8000-00805f9b34fb status=0
+2026-10-22 11:12:56.227 16385-16396 BluetoothGatt           de.mitre.heartrun                    D  onConnectionUpdated() - device=XX:XX:XX:XX:B2:EA interval=36 latency=0 timeout=500 status=0
+2026-10-22 11:12:56.228 16385-16496 BluetoothGatt           de.mitre.heartrun                    D  onConnectionUpdated() - device=XX:XX:XX:XX:B2:EA interval=36 latency=0 timeout=500 status=0
+2026-10-22 11:12:56.454 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664005228888806 dt=94665ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:12:56.454 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664005229166983 dt=0ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:12:57.511 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664006285636930 dt=1056ms bpm=0 rr=[1136] contact=null raw=10008c04
+2026-10-22 11:12:57.511 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664006285967972 dt=0ms bpm=0 rr=[1136] contact=null raw=10008c04
+2026-10-22 11:12:58.523 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664007297302190 dt=1011ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:12:58.524 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664007298210211 dt=0ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:12:59.518 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664008292660627 dt=994ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:12:59.519 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664008293825367 dt=1ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:00.492 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664009265776148 dt=971ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:00.492 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664009266814325 dt=1ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:01.525 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664010300205626 dt=1033ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:01.532 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664010306866668 dt=6ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:02.486 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664011261156041 dt=954ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:02.491 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664011265820677 dt=4ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:03.494 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664012267718905 dt=1001ms bpm=0 rr=[253, 4643, 1038, 406] contact=null raw=1000040193122704a001
+2026-10-22 11:13:03.509 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664012283059009 dt=15ms bpm=0 rr=[253, 4643, 1038, 406] contact=null raw=1000040193122704a001
+2026-10-22 11:13:04.568 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664013341955988 dt=1058ms bpm=0 rr=[309] contact=null raw=10003d01
+2026-10-22 11:13:04.571 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664013340216040 dt=-1ms bpm=0 rr=[309] contact=null raw=10003d01
+2026-10-22 11:13:05.533 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664014307442184 dt=967ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:05.534 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664014308203018 dt=0ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:06.501 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664015275834474 dt=967ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:06.501 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664015275834526 dt=0ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:07.502 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664016276805878 dt=1000ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:07.503 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664016278019368 dt=1ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:08.581 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664017355756138 dt=1077ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:08.587 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664017359490305 dt=3ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:09.547 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664018320201085 dt=1ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:09.552 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664018318748845 dt=959ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:10.510 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664019285610509 dt=0ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:10.510 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664019285494727 dt=965ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:11.514 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664020289310404 dt=1003ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:11.517 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664020292555821 dt=3ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:12.483 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664021258414153 dt=965ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:12.483 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664021258413997 dt=965ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:13.523 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664022297331600 dt=1038ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:13.524 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664022298720767 dt=1ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:13.561 16385-16390 .mitre.heartrun         de.mitre.heartrun                    I  Background young concurrent mark compact GC freed 1900KB AllocSpace bytes, 0(0B) LOS objects, 96% free, 4336KB/128MB, paused 539us,5.844ms total 40.961ms
+2026-10-22 11:13:14.523 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664023297550870 dt=998ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:14.523 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664023297538787 dt=998ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:15.505 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664024279869150 dt=982ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:15.505 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664024277988942 dt=-1ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:16.498 16385-16396 HR                      de.mitre.heartrun                    D  hr: t=1664025272729098 dt=0ms bpm=0 rr=[] contact=null raw=0000
+2026-10-22 11:13:16.498 16385-16496 HR                      de.mitre.heartrun                    D  hr: t=1664025272178733 dt=994ms bpm=0 rr=[] contact=null raw=0000

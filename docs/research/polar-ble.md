@@ -1,6 +1,6 @@
 # Recherche: Polar H10 als Herzfrequenzquelle auf Wear OS
 
-Stand: 2026-10-09 (alle Quellen an diesem Tag abgerufen)
+Stand: 2026-10-09 (alle Quellen an diesem Tag abgerufen), Spike-Ergebnisse ergänzt am 2026-10-22
 Bezug: docs/spec.md, „Offene Fragen“ 1 (H10 als externe HF-Quelle für Health Services) und teilweise 2 (Quelle der Pace)
 Erlaubte Quellen: developer.android.com, polar.com / support.polar.com, github.com/polarofficial
 
@@ -176,6 +176,110 @@ Auf der Pixel Watch 2 läuft belegt mindestens Wear OS 5.1 (API 35). Ob sie neue
 
 **Vermutung**
 - Mit minSdk 30 und Laufzeitprüfungen für API 33/35/36 (Berechtigungen) ist das Projekt für jede Wear-OS-Version abgedeckt, die auf der Pixel Watch 2 laufen kann.
+
+---
+
+## Spike-Ergebnisse (2026-10-22)
+
+Spike „Minimal BLE auf Uhr“ aus ADR 0001, Branch `spike/wear-ble-h10`.
+Rohdaten: `docs/research/spike/ble-h10/` (`test1.txt`, `test2.txt`, `test4.txt` = `adb logcat`, `beobachtungen.txt` = Notizen des Testers). Zu Test 3 gibt es kein Log, zu Test 5 nur Notizen.
+Testumgebung: Pixel Watch 2 mit **Wear OS 7.0**, Polar H10 mit **Firmware 4.2.0**.
+
+Legende wie oben, mit einer Ergänzung: **Beobachtet** heißt, es steht im Log oder in den Notizen dieses Tests. Das ist ein Einzeltest mit einem Gerät, kein allgemeiner Beleg.
+
+### Wichtiger Vorbehalt: Mehrfachverbindungen im Spike-Code
+- **Beobachtet:**
+  - Ab Test 2 kommt jede Notification mehrfach an. In `test2.txt` kommen nach der manuellen Neuverbindung 2 Kopien, in `test4.txt` bei 192 von 210 Paketen 5 Kopien. Die Kopien haben gleiche `raw`-Bytes und liegen nur wenige ms auseinander.
+  - In `test2.txt` stehen um 11:12:55 zwei `connectionState=2` direkt hintereinander.
+  - Tests 2 und 4 laufen im selben Prozess (PID 16385).
+- **Ursache (Code-Analyse):**
+  - `HeartRateBleClient.connect()` erzeugt bei jedem Tippen eine neue `BluetoothGatt`-Instanz, ohne die vorherige zu schließen.
+  - Auch die `autoConnect`-Instanz aus `reconnect()` wird nicht abgebrochen.
+  - Jedes erneute Tippen auf „Suchen“ und dann auf das Gerät erzeugt also einen weiteren GATT-Client, und jeder abonniert die Notifications.
+  - Weil die Callbacks auf verschiedenen Binder-Threads ankommen, werden die `dt`-Werte im Log teils negativ.
+- **Folge:**
+  - Die Rohzeilen von Test 2 und 4 sind für die Taktanalyse nur nach Deduplizierung verwertbar. Die Auswertung unten ist dedupliziert: gleiche `raw`-Bytes innerhalb von 100 ms zählen als ein Paket.
+  - Test 1 ist nicht betroffen, dort gibt es keine Kopien.
+
+### Kriterium 1: Verbindung und 1-Hz-Takt (Test 1) → erfüllt
+- **Beobachtet:**
+  - Scan mit Filter auf den Heart Rate Service findet „Polar H10 1DB2EA30“ nach etwa 0,2 s.
+  - Ablauf: Verbinden, Service Discovery, CCCD schreiben (`status=0`). Die erste HF kommt etwa 1,8 s nach `connectGatt`.
+  - 110 Pakete in 109 s. Abstand Median 991 ms, p95 1452 ms, Maximum 1985 ms.
+  - Die drei Abstände über 1,5 s werden jeweils von einem Paket wenige ms später gefolgt. Das deutet auf eine verzögerte, gebündelte Zustellung hin, nicht auf Verlust (Vermutung).
+- **Beobachtet (Tester):** Die HF war plausibel, 63–75 bpm in Ruhe.
+- **Beobachtet (UUIDs):** Die Service Discovery bestätigt am Gerät die UUIDs, die in Frage 1b nur indirekt belegt waren:
+  - `0000180d-…` (Heart Rate Service)
+  - `00002a37-…` (Heart Rate Measurement, properties `0x10` = Notify)
+  - `00002a38-…` (Body Sensor Location, read)
+  - CCCD `00002902-…`, das Schreiben von `0x01` war erfolgreich.
+  - Außerdem vorhanden: Battery `0x180F`, Device Information `0x180A`, `0xFEEE` und zwei herstellereigene Services.
+- **Beobachtet (Format):**
+  - Die Flags sind immer `0x10` (UINT8-HF mit RR-Intervallen) oder `0x00` (UINT8-HF ohne RR).
+  - Der H10 setzt das Bit „Sensor Contact supported“ nie, Energy Expended kommt nie vor.
+  - Ein Paket enthält 0 bis 4 RR-Werte.
+  - Der H10 meldet über dieses Profil also **keinen Hautkontakt**.
+
+### Kriterium 2: Trennung und Wiederverbindung (Test 2) → teilweise erfüllt
+- **Beobachtet:**
+  - Der H10 wurde laut Tester um 11:11:11 vom Gurt genommen.
+  - Ab 11:11:10 kommen Pakete mit Flags `0x00` (ohne RR), die HF bleibt dabei konstant 68.
+  - Um 11:11:22 meldet die App `connectionState=0 status=257`. Die Trennung wurde also nach etwa **11 s** erkannt, nicht nach 45 s.
+  - Dass der H10 beim Abnehmen 11 s lang den letzten Wert weitersendet, ist wichtig: Die App würde in dieser Zeit einen veralteten Wert als aktuell anzeigen.
+- **Beobachtet:** Die automatische Wiederverbindung (`connectGatt(autoConnect = true)`) hat die Verbindung **nicht** von selbst wiederhergestellt, bevor der Tester um etwa 11:12:38 manuell auf „Suchen“ getippt und das Gerät gewählt hat.
+- **Beobachtet:**
+  - Um 11:12:55 verbinden sich zwei GATT-Instanzen gleichzeitig: die manuelle und, so die Interpretation, die wartende `autoConnect`-Instanz.
+  - Danach kommt HF `0` (`raw=0000`) bis zum Ende des Logs.
+  - Laut Tester zeigten auch andere Apps 0 bpm. Das spricht für ein Problem mit Gurt oder Kontakt, nicht mit der App.
+- **Vermutung:** Die `autoConnect`-Instanz hätte sich wahrscheinlich ebenfalls verbunden, sobald der H10 wieder sendet. Dass beide Verbindungen gleichzeitig um 11:12:55 entstehen, legt nahe, dass der H10 erst ab dann wieder erreichbar war. Wann der Sensor wieder angelegt wurde, ist nicht protokolliert. Ob `autoConnect` allein reicht, ist damit **nicht geklärt**.
+- **Bewertung:**
+  - Die Trennung wird erkannt.
+  - Die Wiederverbindung klappt manuell.
+  - Eine automatische Wiederverbindung ist nicht nachgewiesen. Der Grund liegt mindestens teilweise in der Spike-Implementierung (fehlendes Aufräumen, siehe Vorbehalt), nicht im Ansatz „eigene GATT-Verbindung“.
+
+### Kriterium 3: Parallel zur Polar-App am Handy (Test 3) → teilweise geklärt, ohne Log
+- **Beobachtet (Tester):**
+  - Die Polar-App am Handy und die Uhr waren gleichzeitig mit dem H10 verbunden und zeigten dieselbe HF.
+  - Nachdem die Bluetooth-Verbindung am Handy getrennt wurde, lief die Uhr weiter.
+- **Nicht erfasst:** Welche Einstellung „2 Bluetooth devices“ dabei aktiv war. Die Fälle B1 (aus) und B2 (an) wurden nicht getrennt getestet.
+- **Folge für R6:** Mit der aktuellen Einstellung des H10 (Firmware 4.2.0) ist der Parallelbetrieb möglich. Der Widerspruch zwischen Handbuch und FAQ (Frage 3) ist damit für den Standardfall dieses Geräts entschärft, aber nicht aufgelöst. Offen bleibt, was bei ausgeschalteter Option passiert.
+
+### Kriterium 4: Display ambient bzw. aus (Test 1 und 4, nur Beobachtung)
+- **Beobachtet (Test 1):** Das Display war von 11:03:49 bis 11:04:54 durchgehend in `DOZE` (ambient). Die Notifications kamen weiter im Takt von etwa 1 s, die längste Lücke war 1,985 s. Bei Ambient mit Activity im Vordergrund gibt es also **kein Batching wie bei Health Services**.
+- **Beobachtet (Test 4):**
+  - Ab 11:21:31 ist das Display ambient.
+  - Um 11:22:32 wird die Activity unsichtbar (`visibilityChanged … newVisibility=false`), die Uhr wechselt also zum Zifferblatt.
+  - Die Notifications kommen danach noch etwa 2 min weiter, Median 989 ms, eine Lücke von 4,97 s.
+  - Das letzte Paket kommt um 11:24:43. Danach gibt es keine Zeilen mehr, auch keine Trennung (`connectionState=0`).
+  - Laut Tester kamen Daten erst wieder, nachdem in der App „Suchen“ getippt wurde.
+- **Kein Zustand `OFF` im Log:** Das Display war laut Log nie ganz aus, nur ambient. Der Fall „Display aus“ ist damit nicht getestet.
+- **Vermutung:**
+  - Der Prozess wurde etwa 2 min nach dem Wechsel in den Hintergrund eingefroren (Cached-App-Freezer) oder beendet. Das passt dazu, dass es weder eine Trennungsmeldung noch eine weitere Logzeile gibt.
+  - Genau das soll der Foreground Service aus ADR 0001 verhindern. Bestätigen kann das erst die Implementierung mit FGS.
+- **Vorbehalt:** `test4.txt` enthält genau 1000 HF-Zeilen. Ob das Log beim Export auf 1000 Zeilen gekürzt wurde, lässt sich aus der Datei nicht ausschließen. Die Aussage des Testers, dass danach nichts mehr kam, spricht aber gegen eine bloße Kürzung.
+
+### Kriterium 5: Bonding (nur Beobachtung)
+- **Beobachtet (Tester):** Beim ersten Verbinden erschien auf der Uhr ein Kopplungsdialog.
+- **Beobachtet (Log):** Bei allen protokollierten Verbindungen war der H10 schon `BONDED`, der Dialog lag also vor Test 1.
+- **Nicht geklärt:** Ob Bonding technisch nötig ist oder ob nur der Android-Stack es angestoßen hat. Eine Verbindung ohne Bond wurde nicht getestet.
+
+### Zu Frage 4 (Wear-OS-Version)
+- **Beobachtet:** Auf der Pixel Watch 2 des Testers läuft **Wear OS 7.0**, also API 37. Die Lücke „keine verlässliche Quelle“ aus Frage 4 ist damit für dieses Gerät durch Beobachtung geschlossen. Folge für die Berechtigungen: Es gilt der Pfad für API ≥ 36, also `READ_HEART_RATE` statt `BODY_SENSORS`.
+
+### Zusammenfassung für ADR 0001
+| Kriterium | Ergebnis |
+|---|---|
+| 1 Verbindung und 1 Hz | erfüllt |
+| 2 Trennung und Wiederverbindung | Trennung erkannt (≈ 11 s); Wiederverbindung nur manuell nachgewiesen |
+| 3 Parallel zur Polar-App | möglich mit aktueller H10-Einstellung; B1/B2 nicht getrennt getestet |
+| 4 Ambient | 1 Hz im Ambient-Modus bei Activity im Vordergrund; im Hintergrund nach ≈ 2 min Abbruch (vermutlich Prozess eingefroren) |
+| 5 Bonding | Kopplungsdialog erschien; Notwendigkeit offen |
+
+Konsequenzen für die Implementierung, als Vorschlag ohne Entscheidung:
+- Pro Sensor darf es genau eine `BluetoothGatt`-Instanz geben. Vor jedem neuen `connectGatt` wird die alte geschlossen, die `autoConnect`-Instanz eingeschlossen.
+- Die Wiederverbindung wird aktiv gesteuert, z. B. Scan mit Filter auf die bekannte Adresse und Backoff, statt sich allein auf `autoConnect` zu verlassen.
+- „Veraltete HF“ wird erkannt: Pakete ohne RR (Flags `0x00`) über mehrere Sekunden oder HF = 0 gelten als „kein Kontakt“. Der H10 liefert kein Contact-Bit.
+- Ohne Foreground Service hält die Verbindung im Hintergrund nicht. Der FGS aus ADR 0001 ist Pflicht und wird zuerst getestet.
 
 ---
 
