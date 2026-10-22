@@ -36,5 +36,5 @@ Eine persönliche Lauf- und Trainings-App für Phone und Wear OS. Der Polar H10 
 - Veröffentlichung im Play Store.
 
 ## Offene Fragen
-- Ob Health Services den H10 als externe Herzfrequenzquelle akzeptiert. Wird durch die Recherche in docs/research/polar-ble.md geklärt.
-- Ob die Pace auf der Uhr aus GPS oder aus Health Services kommt.
+- ~~Ob Health Services den H10 als externe Herzfrequenzquelle akzeptiert.~~ Beantwortet: nein. Die Uhr liest den H10 per eigener BLE-Verbindung (ADR 0001, docs/research/polar-ble.md inkl. Spike-Ergebnisse).
+- ~~Ob die Pace auf der Uhr aus GPS oder aus Health Services kommt.~~ Beantwortet: aus Health Services mit `isGpsEnabled = true` (ADR 0001, Punkt 2).
